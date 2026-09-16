@@ -422,6 +422,18 @@ __global__ void FusedAddRMSNormKernel(T* __restrict__ input, T* __restrict__ res
   const uint32_t thread_id = tx + ty * warp_size;
   const uint32_t num_threads = num_warps * warp_size;
   const uint32_t rounds = ceil_div(d, VEC_SIZE * num_threads);
+  // smem 起始地址
+  //     │
+  //     ▼
+  // ┌──────────────────────────┬────────────────────────────────┐
+  // │ 16 个 float              │ 4096 个 float                  │
+  // │ 保存各 warp 的平方和     │ 保存整行加法结果 z = x + r     │
+  // └──────────────────────────┴────────────────────────────────┘
+  //                            ▲
+  //                            │
+  //                          smem_x
+  // 把前段长度向上取整到 4 个 float，也就是 16 字节的倍数，使后段起始偏移保持 16 字节对齐，便于向量化访问。
+  // 例如num_warps=5时 前面就预留8个float
   extern __shared__ float smem[];
   float* smem_x = smem + ceil_div(num_warps, 4) * 4;
 
