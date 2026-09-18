@@ -35,6 +35,9 @@ kernel，也没有使用 CuTe DSL 后端。这次测的是普通 RMSNorm，不�
 
 ## 本次实测（2026-09-16）
 
+后续 profiling 发现不同条件下结论会反转，不能把下表外推为稳定加速。详见
+[PROFILING.md](PROFILING.md) 的新测量和限制。
+
 RTX 2050 4 GB，16 SM，SM86，PyTorch 2.14.0+cu130，CUDA 13.0，WSL。
 原始结果保存在本目录 `results/`，18 个配置全部通过正确性检查。
 最大绝对误差为 0.00390625，满足上述结合相对误差的逐元素判定。
